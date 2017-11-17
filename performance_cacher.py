@@ -285,9 +285,8 @@ def main():
             return
 
         init_table(connection)
-
-        threaders = [TmcThreader(d, connection) for d in range(MAX_THREADS)]
         queryTmcLengths(connection)
+        threaders = [TmcThreader(d, connection) for d in range(MAX_THREADS)]
         TmcThreader.initThreader(queryTmcs(connection))
 
         for threader in threaders:
