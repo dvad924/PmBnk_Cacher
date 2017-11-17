@@ -59,6 +59,16 @@ def parse_dates(dates) :
 
 MAX_THREADS = 1
 TMC_LIMIT = 100
+tmcatts = {}
+def queryTmcLengths(connection):
+    result = None
+    with connection.cursor() as cursor:
+        sql = """ SELECT tmc, miles FROM tmc_attributes WHERE state= {}"""
+        cursor.execute(sql.format(args.state))
+        for row in cursor:
+            tmcatts[row[0]] = float(row[1]);
+    connection.commit()
+
 def queryTmcs(connection):
     #return ('120P05865', '120P05864', '120P05863', '120P05862', '120P05861')
     result = None
@@ -209,7 +219,7 @@ class TmcThreader(threading.Thread):
             else:
                 self.logger.log('No PHed data found for {} in {} {}'.format(tmc, year, month))
 
-            self.phed[tmc] = score or 0
+            self.phed[tmc] = (score or 0) / tmcatts[tmc]
 
     def insertConstructs(self, year, month):
         self.logger.log("PHoney inserts")
@@ -276,7 +286,7 @@ def main():
         init_table(connection)
 
         threaders = [TmcThreader(d, connection) for d in range(MAX_THREADS)]
-
+        queryTmcLengths(connection)
         TmcThreader.initThreader(queryTmcs(connection))
 
         for threader in threaders:
