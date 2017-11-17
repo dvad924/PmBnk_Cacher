@@ -61,11 +61,11 @@ MAX_THREADS = 1
 TMC_LIMIT = 100
 tmcatts = {}
 def queryTmcLengths(connection):
-    states = {"ny":'New York'}
+
     result = None
     with connection.cursor() as cursor:
         sql = """ SELECT tmc, miles FROM tmc_attributes WHERE state='{}'"""
-        cursor.execute(sql.format(states[args.state]))
+        cursor.execute(sql.format(args.state))
         for row in cursor:
             tmcatts[row[0]] = float(row[1]);
     connection.commit()
